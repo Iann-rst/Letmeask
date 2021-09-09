@@ -1,6 +1,6 @@
 //Criando a pagina Sala do visitante
 
-import {useParams} from 'react-router-dom';
+import {useHistory, useParams} from 'react-router-dom';
 
 import logoImg from '../assets/images/logo.svg';
 import deleteImg from '../assets/images/delete.svg';
@@ -21,10 +21,19 @@ type RoomParams = {
 
 export function AdminRoom(){
   //const {user} = useAuth();
+  const history = useHistory();
   const params = useParams<RoomParams>();//pegar o id da pagina, através da URL
   const roomId = params.id;
 
   const {title, questions} = useRoom(roomId)
+
+  async function handleEndRoom(){
+    await database.ref(`rooms/${roomId}`).update({
+      endedAt: new Date(),
+    });
+
+    history.push('/');
+  }
 
   async function handleDeleteQuestion(questionId: string) {
    if(window.confirm('Tem certeza que você deseja excluir esta pergunta?')){
@@ -39,7 +48,7 @@ export function AdminRoom(){
           <img src={logoImg} alt="Letmeask" />
           <div>
             <RoomCode code={roomId} />
-            <Button isOutLined> Encerrar sala</Button>
+            <Button isOutLined onClick={handleEndRoom}> Encerrar sala</Button>
           </div>
         </div>
       </header>
