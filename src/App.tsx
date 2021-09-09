@@ -7,6 +7,7 @@ import { Room } from './pages/Room';
 import {AuthContextProvider} from './contexts/AuthContext';
 import { AdminRoom } from './pages/AdminRoom';
 
+
 function App() {
   return (
     <BrowserRouter>
