@@ -8,65 +8,23 @@ import { Button } from '../components/Button';
 import { Question } from '../components/Question';
 import { RoomCode } from '../components/RoomCode';
 import { useAuth } from '../hooks/useAuth';
+import { useRoom } from '../hooks/useRoom';
 import { database } from '../services/firebase';
 
 import '../styles/room.scss';
 
-type FireBaseQuestions = Record<string, {
-  author: {
-    name: string,
-    avatar: string,
-  }
-  content: string;
-  isAnswered: boolean;
-  isHighLighted: boolean;
-}>
-
-type QuestionType = {
-  id: string;
-  author: {
-    name: string,
-    avatar: string,
-  }
-  content: string;
-  isAnswered: boolean;
-  isHighLighted: boolean;
-}
-
 type RoomParams = {
   id: string;
 }
+
 export function Room(){
   const {user} = useAuth();
   const params = useParams<RoomParams>();//pegar o id da pagina, através da URL
   const [newQuestion, setNewQuestion] = useState('');
-  const [questions, setQuestions] = useState<QuestionType[]>([]);
-  const [title, setTitle] = useState('');
   const roomId = params.id;
 
-  useEffect(()=>{
-    //Ficar "observando" a sala
-    const roomRef = database.ref(`rooms/${roomId}`);
+  const {title, questions} = useRoom(roomId)
 
-    //"Observando as perguntas que contem na sala"
-    roomRef.on('value', room => {
-      const databaseRoom = room.val();
-      const firebaseQuestions: FireBaseQuestions = databaseRoom.questions ?? {};
-
-      const parsedQuestions = Object.entries(firebaseQuestions).map(([key, value]) => {
-        return {
-          id: key,
-          content: value.content,
-          author: value.author,
-          isHighLighted: value.isHighLighted,
-          isAnswered: value.isAnswered,
-        }
-      })
-
-      setTitle(databaseRoom.title); //Titulo da sala
-      setQuestions(parsedQuestions); //Perguntas da sala
-    })
-  }, [roomId]);
 
   async function handleSendQuestion(event: FormEvent){
     event.preventDefault();
